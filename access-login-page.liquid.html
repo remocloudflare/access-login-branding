@@ -1,0 +1,249 @@
+{% comment %}
+  Access login page.
+  Variables used: app_name, app_domain, org.name, message.text, message.level.
+  <cf-access-authbox> is the sign-in control Access injects. Keep exactly one,
+  outside any Liquid condition or loop.
+{% endcomment %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign in to {{ app_name }}</title>
+    <style>
+      :root {
+        --bg: #eef2ee;
+        --bg-glow-a: rgba(60, 80, 61, 0.18);
+        --bg-glow-b: rgba(246, 130, 31, 0.12);
+        --card: rgba(255, 255, 255, 0.82);
+        --border: rgba(60, 80, 61, 0.16);
+        --text: #16201a;
+        --muted: #5b6b60;
+        --accent: #3c503d;
+        --accent-soft: rgba(60, 80, 61, 0.1);
+        --chip: rgba(60, 80, 61, 0.08);
+        --shadow: 0 24px 60px -24px rgba(22, 32, 26, 0.35);
+        --info: #0b5cad;
+        --warning: #8a5a00;
+        --error: #b3261e;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b130e;
+          --bg-glow-a: rgba(94, 160, 108, 0.2);
+          --bg-glow-b: rgba(246, 130, 31, 0.1);
+          --card: rgba(18, 28, 22, 0.82);
+          --border: rgba(150, 190, 160, 0.18);
+          --text: #e9f1ec;
+          --muted: #a3b5a9;
+          --accent: #7fc08f;
+          --accent-soft: rgba(127, 192, 143, 0.14);
+          --chip: rgba(127, 192, 143, 0.1);
+          --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+          --info: #7db7ff;
+          --warning: #f2c057;
+          --error: #ff8f87;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        color-scheme: light dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        color: var(--text);
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
+          Arial, sans-serif;
+        background:
+          radial-gradient(60rem 40rem at 12% -10%, var(--bg-glow-a), transparent 60%),
+          radial-gradient(50rem 36rem at 100% 110%, var(--bg-glow-b), transparent 60%),
+          var(--bg);
+      }
+      .card {
+        width: 100%;
+        max-width: 460px;
+        padding: 40px 36px 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        text-align: center;
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        animation: rise 420ms ease-out both;
+      }
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .card {
+          animation: none;
+        }
+      }
+      .mark {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 18px;
+        display: grid;
+        place-items: center;
+        color: var(--accent);
+        background: var(--accent-soft);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+      }
+      .lock {
+        position: relative;
+        width: 22px;
+        height: 16px;
+        margin-top: 9px;
+        background: currentColor;
+        border-radius: 4px;
+      }
+      .lock::before {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: -13px;
+        width: 10px;
+        height: 12px;
+        border: 3px solid currentColor;
+        border-bottom: 0;
+        border-radius: 8px 8px 0 0;
+      }
+      .org {
+        margin: 0 0 6px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent);
+        overflow-wrap: anywhere;
+      }
+      h1 {
+        margin: 0 0 8px;
+        font-size: 26px;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+      }
+      .lede {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .domain {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        max-width: 100%;
+        margin-top: 14px;
+        padding: 6px 12px;
+        font-size: 13px;
+        color: var(--muted);
+        background: var(--chip);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        overflow-wrap: anywhere;
+      }
+      .domain::before,
+      .foot strong::before {
+        content: '';
+        flex: none;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .banner {
+        margin: 0;
+        padding: 12px 14px;
+        text-align: left;
+        font-size: 14px;
+        border-radius: 12px;
+        border: 1px solid currentColor;
+        background: color-mix(in srgb, currentColor 8%, transparent);
+      }
+      .banner--info {
+        color: var(--info);
+      }
+      .banner--warning {
+        color: var(--warning);
+      }
+      .banner--error {
+        color: var(--error);
+      }
+      .banner span {
+        color: var(--text);
+      }
+      cf-access-authbox {
+        display: block;
+        width: 100%;
+      }
+      .foot {
+        margin: 0;
+        padding-top: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        border-top: 1px solid var(--border);
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+      .foot strong {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      @media (max-width: 480px) {
+        .card {
+          padding: 32px 22px 22px;
+          border-radius: 18px;
+        }
+        h1 {
+          font-size: 23px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <header>
+        <div class="mark" aria-hidden="true"><span class="lock"></span></div>
+        <p class="org">{{ org.name }}</p>
+        <h1>Sign in to {{ app_name }}</h1>
+        <p class="lede">Use your {{ org.name }} account to continue.</p>
+        <span class="domain">{{ app_domain }}</span>
+      </header>
+
+      {% comment %} message is set on retries (for example a bad code). {% endcomment %}
+      {% if message.text.size > 0 %}
+        <p class="banner banner--{{ message.level | default: 'info' }}" role="status"><span>{{ message.text }}</span></p>
+      {% endif %}
+
+      <cf-access-authbox></cf-access-authbox>
+
+      <footer class="foot">
+        <strong>Secured by Cloudflare Access</strong>
+        <span>Trouble signing in? Contact your administrator.</span>
+      </footer>
+    </main>
+  </body>
+</html>
